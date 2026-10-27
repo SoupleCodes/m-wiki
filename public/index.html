@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/favicon.ico">
+  <link rel="stylesheet" href="/styles/styles.css?=v1">
+  <script type="text/javascript" src="/js/xhr.js?=v1"></script>
+  <script type="text/javascript" src="/js/scripts.js?=v1"></script>
+
+  <title>wikiverse > home</title>
+</head>
+
+<body onload>
+  <div class="topbar-back"></div>
+  <div class="container">
+    <div id="scrollable-content" data-page="0" style="left:0px">
+      <div id="home" class="slide" data-current-slide="true">
+        <div class="topbar">
+          <div class="topbar-title">Home</div>
+        </div>
+
+        <div class="main-content">
+          <div id="searchfield-wrapper" class="input-wrapper">
+            <input type="text" placeholder="Search articles or people" disabled>
+          </div>
+
+          <div style="padding: 8px;">
+            <div id="explore-options" class="int btn-group row">
+              <div>All</div>
+              <div>Random</div>
+              <div>Popular</div>
+            </div>
+
+            <div id="compose-btn" class="newslide int" onclick="composeNew()">Compose</div>
+
+            <div id="featured-article" class="int col">
+              <div class="article-info">
+                <span class="int-title"></span>
+                <span class="int-detail"></span>
+              </div>
+              
+              <div class="img-wrapper">
+                <img src/>
+                <div class="img-caption"></div>
+              </div>
+              
+              <div class="read-more int newslide btn">Read more</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="compose" class="slide blue" data-current-slide="false">
+        <div class="topbar">
+          <div class="topbar-title">Compose</div>
+        </div>
+
+        <div class="main-content">
+          <div style="padding: 10px;display: flex;flex-direction: column;flex-grow: 1;">
+            <label>
+              <small class="title">Title</small>
+              <input type="text" name="compose-article-title">
+              <small class="err-msg"></small>
+            </label>
+
+            <label>
+              <small class="title">Category</small>
+              <div id="dropdown-category" class="dropdown-wrapper">
+                <button class="dropdown">Uncategorized</button>
+                <input name="compose-article-category" value="Uncategorized" type="hidden">
+                <ul class="hidden">
+                  <li data-value="Uncategory">Uncategorized</li>
+                  <li data-value="Cats">Cats</li>
+                </ul>
+              </div>
+            </label>
+            
+            <textarea 
+              placeholder="Mitosis cat was the first exploit present on wikiverse, created by @Pkmnq. The exploit was made possible by plain HTML due to poor XSS handling. This cat would be inserted into the created article when it appeared on the homepage." 
+              name="compose-article-content"
+              class="textbox"></textarea>
+
+            <button onclick="submitArticle()" class="submit">Submit</button>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div id="login-popup" class="input-wrapper">
+    <h1>wikiverse</h1>
+    <input id="username" name="username" type="text" placeholder="Username">
+    <input id="password" name="password" placeholder="Password" type="password" style="margin-top: 5px;">
+    <div id="login-div">
+      <span id="login-err" class="err"></span>
+      <button class="submit" onclick="login()">Login</button>
+    </div>
+    <div id="reg-div" class="hidden">
+      <input id="retype" name="retype" placeholder="Retype password" type="password" style="margin-top: 5px;">
+      <span id="reg-err" class="err"></span>
+      <button class="submit" onclick="reg()">Register</button>
+    </div>
+    <span id="reg-link">Don't have an account?</span>
+    <script>
+      var regLink = document.getElementById('reg-link')
+      var logDiv = document.getElementById('login-div')
+      var regDiv = document.getElementById('reg-div')
+      var inputUsr = document.getElementById('username')
+      var inputPswd = document.getElementById('password')
+      var logErr = document.getElementById('login-err')
+      var regErr = document.getElementById('reg-err')
+      var inputRetypePswd = document.getElementById('retype')
+
+      var mode = 0
+      regLink.addEventListener("click", function() {
+        logDiv.classList.toggle('hidden')
+        regDiv.classList.toggle('hidden')
+
+        mode = Math.abs(Number(mode) - 1)
+        if (mode == 1) {
+          regLink.textContent = "Already have an account?"
+        } else {
+          regLink.textContent = "Don't have an account?"
+        }
+      })
+
+      function login() {
+        var formData = new FormData();
+        formData.append("username", inputUsr.value);
+        formData.append("password", inputPswd.value);
+
+        http("POST", '/auth/login', null, function(response) {
+            var authPopup = document.getElementById('login-popup')
+            authPopup.classList.add('godown')
+
+            var url = new URL(location);
+            url.searchParams.set("refresh", "true");
+            history.pushState({}, "", url);
+
+            setTimeout(function() {
+              authPopup.remove()
+              history.pushState({}, "", location.origin)
+            }, 500)
+        }, 
+        function(response) {
+          logErr.textContent = response
+        }, formData)
+        
+      }
+
+      function reg() {
+        var formData = new FormData();
+        formData.append("username", inputUsr.value);
+        formData.append("password", inputPswd.value);
+        formData.append("retype", inputRetypePswd.value);
+
+        http("POST", '/auth/register', null, function(response) {
+            regDiv.remove()
+            logDiv.classList.remove('hidden')
+        }, 
+        function(response) {
+          regErr.textContent = response
+        }, formData)
+      }
+    </script>
+  </div>
+</body>

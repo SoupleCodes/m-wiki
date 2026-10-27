@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "pages": "wrangler pages dev ./public --port=8788",
+    "pages-deploy": "wrangler pages deploy ./public --commit-dirty=true",
+    "db-deploy": "wrangler deploy",
+    "db": "wrangler dev",
+    "schema-local": "wrangler d1 execute mwiki --local --file ./_schema.sql",
+    "schema-global": "wrangler d1 execute mwiki --remote --file ./_schema.sql",
+    "schema-newchanges": "wrangler d1 execute mwiki --local --file ./_newchanges.sql"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "hono": "^4.13.3",
+    "wrangler": "^4.56.0"
+  }
+}
